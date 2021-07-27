@@ -12,10 +12,10 @@ import (
 )
 
 type Session interface {
-	Set(key, value interface{}) error //set session value
-	Get(key interface{}) interface{}  //get session value
-	Delete(key interface{}) error     //delete session value
-	SessionID() string                //back current sessionID
+	Set(key, value interface{}) error // set session value
+	Get(key interface{}) interface{}  // get session value
+	Delete(key interface{}) error     // delete session value
+	SessionID() string                // back current sessionID
 }
 
 type Provider interface {
@@ -41,7 +41,7 @@ func Register(name string, provide Provider) {
 }
 
 type Manager struct {
-	cookieName  string     //private cookiename
+	cookieName  string     // private cookiename
 	lock        sync.Mutex // protects session
 	provider    Provider
 	maxlifetime int64
@@ -55,7 +55,7 @@ func NewManager(provideName, cookieName string, maxlifetime int64) (*Manager, er
 	return &Manager{provider: provider, cookieName: cookieName, maxlifetime: maxlifetime}, nil
 }
 
-//get Session
+// get Session
 func (manager *Manager) SessionStart(w http.ResponseWriter, r *http.Request) (session Session) {
 	manager.lock.Lock()
 	defer manager.lock.Unlock()
@@ -72,19 +72,21 @@ func (manager *Manager) SessionStart(w http.ResponseWriter, r *http.Request) (se
 	return
 }
 
-//Destroy sessionid
+// Destroy sessionid
 func (manager *Manager) SessionDestroy(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(manager.cookieName)
 	if err != nil || cookie.Value == "" {
 		return
-	} else {
-		manager.lock.Lock()
-		defer manager.lock.Unlock()
-		manager.provider.SessionDestroy(cookie.Value)
-		expiration := time.Now()
-		cookie := http.Cookie{Name: manager.cookieName, Path: "/", HttpOnly: true, Expires: expiration, MaxAge: -1}
-		http.SetCookie(w, &cookie)
 	}
+	manager.lock.Lock()
+	defer manager.lock.Unlock()
+	err = manager.provider.SessionDestroy(cookie.Value)
+	if err != nil {
+		return
+	}
+	expiration := time.Now()
+	cookie1 := http.Cookie{Name: manager.cookieName, Path: "/", HttpOnly: true, Expires: expiration, MaxAge: -1}
+	http.SetCookie(w, &cookie1)
 }
 
 func (manager *Manager) GC() {
