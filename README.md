@@ -6,6 +6,14 @@
 * Based easyui framework to achieve(easyui license [easyui website](http://www.jeasyui.com)).
 
 ## Usage
+
+### Use docker to run 
+```
+docker pull aschenmaker/etcdkeeper 
+
+docker run --name ekp -p 8080:8080 -d  aschenmaker/etcdkeeper
+```
+
 * Run etcdkeeper.exe (windows version)
 * Run etcdkeeper.exe -auth (If enable etcd authentication)
 * [Download other platform releases](https://github.com/evildecay/etcdkeeper/releases).
